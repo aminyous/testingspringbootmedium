@@ -1,6 +1,12 @@
 package com.luv2code.springmvc;
 
 import com.luv2code.springmvc.models.CollegeStudent;
+import com.luv2code.springmvc.models.HistoryGrade;
+import com.luv2code.springmvc.models.MathGrade;
+import com.luv2code.springmvc.models.ScienceGrade;
+import com.luv2code.springmvc.repository.HistoryGradesDao;
+import com.luv2code.springmvc.repository.MathGradesDao;
+import com.luv2code.springmvc.repository.ScienceGradesDao;
 import com.luv2code.springmvc.repository.StudentDao;
 import com.luv2code.springmvc.service.StudentAndGradeService;
 import org.junit.jupiter.api.AfterEach;
@@ -28,6 +34,14 @@ public class StudentAndGradeServiceTest {
     StudentDao studentDao;
     @Autowired
     StudentAndGradeService studentService;
+
+    @Autowired
+    MathGradesDao mathGradeDao;
+    @Autowired
+    ScienceGradesDao scienceGradeDao;
+
+    @Autowired
+    HistoryGradesDao historyGradeDao;
 
     @BeforeEach
     public void setupDatabase(){
@@ -73,6 +87,30 @@ public class StudentAndGradeServiceTest {
 
         assertEquals(5, collegeStudents.size());
 
+    }
+
+    @Test
+    public void createGradeService(){
+        assertTrue(studentService.createGrade(80.50,1,"math"));
+        assertTrue(studentService.createGrade(80.50,1,"science"));
+        assertTrue(studentService.createGrade(80.50,1,"history"));
+
+        Iterable<MathGrade> mathGrades = mathGradeDao.findGradeByStudentId(1);
+        Iterable<ScienceGrade> scienceGrades = scienceGradeDao.findGradeByStudentId(1);
+        Iterable<HistoryGrade> historyGrades = historyGradeDao.findGradeByStudentId(1);
+
+        assertTrue(mathGrades.iterator().hasNext(), "Student has math grades");
+        assertTrue(scienceGrades.iterator().hasNext(), "Student has science grades");
+        assertTrue(historyGrades.iterator().hasNext(), "Student has history grades");
+    }
+
+
+    @Test
+    public void createGradeServiceReturnFalse(){
+        assertFalse(studentService.createGrade(105.00,1,"math"));
+        assertFalse(studentService.createGrade(-1,1,"math"));
+        assertFalse(studentService.createGrade(80.50,2,"math"));
+        assertFalse(studentService.createGrade(80.50,1,"Sport"));
     }
 
     @AfterEach
